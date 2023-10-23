@@ -5,6 +5,7 @@ import 'package:weather_app/additional_info.dart';
 import 'package:weather_app/hourly_info.dart';
 import 'package:http/http.dart' as http;
 import 'package:weather_app/secrets.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 class WeatherAppScreen extends StatefulWidget {
   const WeatherAppScreen({super.key});
@@ -33,6 +34,14 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
       throw e.toString();
     }
   }
+
+  IconData getWeatherIcon(String icon) => switch (icon) {
+        'Clouds' => WeatherIcons.cloud,
+        'Rain' || 'Drizzle' => WeatherIcons.rain,
+        'Clear' => WeatherIcons.day_sunny,
+        'Snow' => WeatherIcons.snow,
+        _ => WeatherIcons.cloud
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +76,37 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
           }
 
           final (currTempData, forecastData) = snapshot.data!;
+
           final currTemperature =
               (currTempData['main']['temp'] - 273.15).round();
-          final currSky = currTempData['weather'][0]['main'];
+          final String currSky = currTempData['weather'][0]['main'];
+          final currSkyIcon = getWeatherIcon(currSky);
+
+          final windSpeed = currTempData['wind']['speed'];
+          final humidity = currTempData['main']['humidity'];
+          final pressure = currTempData['main']['pressure'];
+
+          final feelsLike =
+              (currTempData['main']['feels_like'] - 273.15).round();
+          String briefOverview =
+              'Feels like $feelsLike, ${currTempData['weather'][0]['description']}';
+
+          var hourlyRow = <HourlyColomn>[];
+
+          for (int i = 0; i < 5; i++) {
+            String time = forecastData['list'][i]['dt_txt'].split(' ')[1];
+            time = time.split(':').sublist(0, 2).join(':');
+
+            final weatherIcon =
+                getWeatherIcon(forecastData['list'][i]['weather'][0]['main']);
+            final temperature =
+                (forecastData['list'][i]['main']['temp'] - 273.15).round();
+
+            hourlyRow.add(HourlyColomn(
+                time: time,
+                icon: weatherIcon,
+                temperature: temperature.toString()));
+          }
 
           return Center(
             child: Padding(
@@ -90,13 +127,11 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const Icon(
-                              Icons.cloud,
-                              size: 50,
-                            ),
+                            Icon(currSkyIcon, size: 50),
+                            const SizedBox(height: 30),
                             Text(
-                              '$currSky',
-                              style: TextStyle(fontSize: 32),
+                              currSky,
+                              style: const TextStyle(fontSize: 32),
                             ),
                           ],
                         ),
@@ -104,20 +139,24 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
                     ],
                   ),
                   // brief overview
-                  const SizedBox(
+                  SizedBox(
                     width: double.infinity,
                     height: 80,
                     child: Card(
-                      margin: EdgeInsets.all(2),
-                      color: Color(0xFF3B78EB),
+                      margin: const EdgeInsets.all(2),
+                      color: const Color(0xFF3B78EB),
                       elevation: 5,
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(15),
                         child: Text(
-                          'Brief overview',
+                          briefOverview,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w300
+                          ),
                         ),
                       ),
                     ),
@@ -127,33 +166,7 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: [
-                        HourlyColomn(
-                          time: '22:00',
-                          temperature: '7',
-                          icon: Icons.cloud,
-                        ),
-                        HourlyColomn(
-                          time: '23:00',
-                          temperature: '8',
-                          icon: Icons.cloud,
-                        ),
-                        HourlyColomn(
-                          time: '24:00',
-                          temperature: '7',
-                          icon: Icons.cloud,
-                        ),
-                        HourlyColomn(
-                          time: '00:00',
-                          temperature: '6',
-                          icon: Icons.cloud,
-                        ),
-                        HourlyColomn(
-                          time: '01:00',
-                          temperature: '5',
-                          icon: Icons.cloud,
-                        ),
-                      ],
+                      children: hourlyRow,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -167,8 +180,12 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
                           TextStyle(fontSize: 23, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  AdditionalWeatherInfo(),
+                  const SizedBox(height: 10),
+                  AdditionalWeatherInfo(
+                    wind: windSpeed.toString(),
+                    humidity: humidity.toString(),
+                    pressure: pressure.toString(),
+                  ),
                 ],
               ),
             ),

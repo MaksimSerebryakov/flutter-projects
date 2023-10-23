@@ -28,10 +28,9 @@ class HourlyColomn extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 6),
             // weather Icon
             Icon(icon, size: 32),
-            const SizedBox(height: 6),
+            const SizedBox(height: 20),
             // temperature
             Text(
               '$temperature \u2103',

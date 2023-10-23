@@ -2,31 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:weather_icons/weather_icons.dart';
 
 class AdditionalWeatherInfo extends StatelessWidget {
-  const AdditionalWeatherInfo({super.key});
+  final String wind;
+  final String humidity;
+  final String pressure;
+
+  const AdditionalWeatherInfo(
+      {super.key,
+      required this.wind,
+      required this.humidity,
+      required this.pressure});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             AddintionalInfoUnit(
               text: 'Wind Speed',
-              value: '10 m/s',
+              value: '$wind m/s',
               unitIcon: WeatherIcons.windy,
             ),
             AddintionalInfoUnit(
               text: 'Pressure',
-              value: '773 mm',
+              value: '$pressure hPa',
               unitIcon: WeatherIcons.barometer,
             ),
           ],
         ),
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         AddintionalInfoUnit(
           text: 'Humidity',
-          value: '81%',
+          value: '$humidity %',
           unitIcon: WeatherIcons.humidity,
         ),
       ],
