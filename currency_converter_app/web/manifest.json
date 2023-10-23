@@ -1,6 +1,6 @@
 {
-    "name": "test_application",
-    "short_name": "test_application",
+    "name": "currency_converter_app",
+    "short_name": "currency_converter_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
