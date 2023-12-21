@@ -29,34 +29,40 @@ class CartPage extends StatelessWidget {
             trailing: IconButton(
               onPressed: () {
                 showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          'Delete Product',
-                          style: Theme.of(context).textTheme.titleMedium,
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text(
+                        'Delete Product',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      content: const Text(
+                        'Are you sure want to remove this product from\nyour cart?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('No'),
                         ),
-                        content: const Text(
-                          'Are you sure want to remove this product from\nyour cart?',
+                        TextButton(
+                          onPressed: () {
+                            Provider.of<CartProvider>(context, listen: false)
+                                .removeProduct(cartItem);
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Yes',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 143, 56, 50),
+                            ),
+                          ),
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('No'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Provider.of<CartProvider>(context, listen: false)
-                                  .removeProduct(cartItem);
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Yes', style: TextStyle(color: Color.fromARGB(255, 143, 56, 50))),
-                          ),
-                        ],
-                      );
-                    });
+                      ],
+                    );
+                  },
+                );
               },
               icon: const Icon(
                 Icons.delete,

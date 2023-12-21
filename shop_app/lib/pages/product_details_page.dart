@@ -55,7 +55,10 @@ class _DetailPageState extends State<DetailPage> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const Spacer(),
-          Image.asset(widget.product['imageUrl'] as String),
+          Image.asset(
+            widget.product['imageUrl'] as String,
+            height: 250,
+          ),
           const Spacer(flex: 2),
           Container(
             height: 250,
@@ -105,7 +108,7 @@ class _DetailPageState extends State<DetailPage> {
                     onPressed: addProductToCart,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      minimumSize: const Size(double.infinity, 50),
+                      fixedSize: const Size(350, 50),
                     ),
                     icon: const Icon(
                       Icons.shopping_cart,
