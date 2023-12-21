@@ -82,13 +82,42 @@ class _EnterForm extends StatefulWidget {
 class _EnterFormState extends State<_EnterForm> {
   final _phoneEmailController = TextEditingController();
 
+  String? errorText;
+
   bool saveInput = false;
   bool isEmptyPhoneEmailField = true;
 
   final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
 
   void _continue() {
-    debugPrint("continue: ${_phoneEmailController.text}");
+    final login = _phoneEmailController.text;
+
+    if (login == "admin") {
+      debugPrint("continue: ${_phoneEmailController.text}");
+      errorText = null;
+    } else {
+      errorText = "One of parameters specified was missing or invalid";
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(
+                errorText!,
+                style: const TextStyle(
+                    color: Color.fromARGB(255, 129, 140, 153),
+                    fontWeight: FontWeight.w400),
+              ),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              backgroundColor: Colors.white,
+              alignment: Alignment.bottomCenter,
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 0,
+                vertical: 20,
+              ),
+            );
+          });
+    }
   }
 
   @override
@@ -207,9 +236,7 @@ class _EnterFormState extends State<_EnterForm> {
             height: 46,
             width: double.infinity,
             child: TextButton(
-              onPressed: isEmptyPhoneEmailField == true
-                  ? null
-                  : _continue,
+              onPressed: isEmptyPhoneEmailField == true ? null : _continue,
               style: isEmptyPhoneEmailField == true
                   ? ButtonStyle(
                       backgroundColor: nextButtonInactiveColor,
