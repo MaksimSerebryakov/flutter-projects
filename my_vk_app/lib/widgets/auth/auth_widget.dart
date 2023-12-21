@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_vk_app/providers/person_data_provider.dart';
+import 'package:provider/provider.dart';
 
 class AuthWidget extends StatefulWidget {
   const AuthWidget({super.key});
@@ -95,6 +97,10 @@ class _EnterFormState extends State<_EnterForm> {
     if (login == "admin") {
       debugPrint("continue: ${_phoneEmailController.text}");
       errorText = null;
+
+      Provider.of<PersonDataProvider>(context, listen: false).setLogin(login);
+
+      Navigator.pushNamed(context, "/password");
     } else {
       errorText = "One of parameters specified was missing or invalid";
       showDialog(
