@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_vk_app/providers/person_data_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:my_vk_app/widgets/auth/auth_widget.dart';
-import 'package:my_vk_app/widgets/auth/password_widget.dart';
+import 'package:my_vk_app/training_app/pages/main_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,22 +10,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => PersonDataProvider(),
-      child: MaterialApp(
-        title: 'VK',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 46, 98, 177)),
-          useMaterial3: true,
+    return MaterialApp(
+      title: 'VK',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 0x20, 0x24, 0x39),
+          primary: const Color.fromARGB(255, 0x20, 0x24, 0x39),
+          secondary: const Color.fromARGB(255, 0xed, 0x69, 0x2a),
         ),
-        routes: {
-          "/": (context) => const AuthWidget(),
-          "/password": (context) => const PasswordWidget(),
-        },
-        initialRoute: "/",
+        useMaterial3: true,
       ),
+      routes: {
+        "/": (context) => const MainPage(),
+      },
+      initialRoute: "/",
     );
   }
 }

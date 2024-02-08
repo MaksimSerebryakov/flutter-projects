@@ -92,7 +92,7 @@ class _PasswordWidgetState extends State<PasswordWidget> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           const _EnterForm()
         ],
       ),
