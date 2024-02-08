@@ -15,6 +15,8 @@ class WeatherAppScreen extends StatefulWidget {
 }
 
 class _WeatherAppScreenState extends State<WeatherAppScreen> {
+  late Future<(Map<String, dynamic>, Map<String, dynamic>)> getWeather;
+
   Future<(Map<String, dynamic>, Map<String, dynamic>)> getCurrWeather() async {
     try {
       var currWeather = await http.get(Uri.parse(
@@ -44,6 +46,13 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
       };
 
   @override
+  void initState() {
+    super.initState();
+
+    getWeather = getCurrWeather();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +66,11 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                getWeather = getCurrWeather();
+              });
+            },
             icon: const Icon(
               Icons.refresh,
             ),
@@ -66,7 +79,7 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
         ],
       ),
       body: FutureBuilder(
-        future: getCurrWeather(),
+        future: getWeather,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -154,9 +167,7 @@ class _WeatherAppScreenState extends State<WeatherAppScreen> {
                         child: Text(
                           briefOverview,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w300
-                          ),
+                              fontSize: 18, fontWeight: FontWeight.w300),
                         ),
                       ),
                     ),
