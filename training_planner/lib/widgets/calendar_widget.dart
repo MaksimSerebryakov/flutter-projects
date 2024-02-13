@@ -52,11 +52,41 @@ DataSource _getCalendarDataSource() {
   List<Appointment> appointments = <Appointment>[];
   appointments.add(
     Appointment(
-        startTime: DateTime.now(),
-        endTime: DateTime.now().add(Duration(hours: 2)),
+        startTime: DateTime.now().add(Duration(hours: 1)),
+        endTime: DateTime.now().add(Duration(hours: 5)),
         isAllDay: false,
-        subject: 'Meeting',
+        subject: 'Meeting 1',
         color: Colors.blue,
+        startTimeZone: '',
+        endTimeZone: ''),
+  );
+  appointments.add(
+    Appointment(
+        startTime: DateTime.now().add(Duration(hours: 2)),
+        endTime: DateTime.now().add(Duration(hours: 4)),
+        isAllDay: false,
+        subject: 'Meeting 2',
+        color: Colors.red,
+        startTimeZone: '',
+        endTimeZone: ''),
+  );
+  appointments.add(
+    Appointment(
+        startTime: DateTime.now().add(Duration(hours: 2)),
+        endTime: DateTime.now().add(Duration(hours: 4)),
+        isAllDay: false,
+        subject: 'Meeting 2',
+        color: Colors.yellow,
+        startTimeZone: '',
+        endTimeZone: ''),
+  );
+  appointments.add(
+    Appointment(
+        startTime: DateTime.now().add(Duration(hours: 2)),
+        endTime: DateTime.now().add(Duration(hours: 4)),
+        isAllDay: false,
+        subject: 'Meeting 2',
+        color: Colors.green,
         startTimeZone: '',
         endTimeZone: ''),
   );
