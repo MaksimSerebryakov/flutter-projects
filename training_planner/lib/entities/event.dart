@@ -10,7 +10,7 @@ class Event {
 
   Event(
       {required this.title,
-      required this.description,
+      this.description = '',
       required this.from,
       required this.to,
       this.backgroundColor = const Color.fromARGB(255, 0x20, 0x24, 0x39),

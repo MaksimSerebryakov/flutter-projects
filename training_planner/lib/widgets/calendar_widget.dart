@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+import 'package:training_planner/entities/event.dart';
+import 'package:training_planner/providers/calendar_provider.dart';
 
 class CalendarWidget extends StatefulWidget {
   const CalendarWidget({super.key});
@@ -23,13 +28,15 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final events = Provider.of<CalendarProvider>(context).events;
+
     return SfCalendar(
       view: CalendarView.month,
       initialSelectedDate: DateTime.now(),
       monthViewSettings:
           const MonthViewSettings(showAgenda: true, agendaStyle: AgendaStyle()),
       controller: _calendarController,
-      dataSource: _getCalendarDataSource(),
+      dataSource: DataSource(events),
       allowedViews: const [
         CalendarView.day,
         CalendarView.week,
@@ -37,65 +44,38 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       ],
       onTap: calendarTapped,
       timeSlotViewSettings: const TimeSlotViewSettings(
-        timeFormat: "H:mm",
+        timeFormat: 'H:mm',
         timeTextStyle: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.w500,
           fontSize: 13,
         ),
       ),
+      appointmentTimeTextFormat: 'H:mm',
     );
   }
 }
 
-DataSource _getCalendarDataSource() {
-  List<Appointment> appointments = <Appointment>[];
-  appointments.add(
-    Appointment(
-        startTime: DateTime.now().add(Duration(hours: 1)),
-        endTime: DateTime.now().add(Duration(hours: 5)),
-        isAllDay: false,
-        subject: 'Meeting 1',
-        color: Colors.blue,
-        startTimeZone: '',
-        endTimeZone: ''),
-  );
-  appointments.add(
-    Appointment(
-        startTime: DateTime.now().add(Duration(hours: 2)),
-        endTime: DateTime.now().add(Duration(hours: 4)),
-        isAllDay: false,
-        subject: 'Meeting 2',
-        color: Colors.red,
-        startTimeZone: '',
-        endTimeZone: ''),
-  );
-  appointments.add(
-    Appointment(
-        startTime: DateTime.now().add(Duration(hours: 2)),
-        endTime: DateTime.now().add(Duration(hours: 4)),
-        isAllDay: false,
-        subject: 'Meeting 2',
-        color: Colors.yellow,
-        startTimeZone: '',
-        endTimeZone: ''),
-  );
-  appointments.add(
-    Appointment(
-        startTime: DateTime.now().add(Duration(hours: 2)),
-        endTime: DateTime.now().add(Duration(hours: 4)),
-        isAllDay: false,
-        subject: 'Meeting 2',
-        color: Colors.green,
-        startTimeZone: '',
-        endTimeZone: ''),
-  );
-
-  return DataSource(appointments);
-}
-
 class DataSource extends CalendarDataSource {
-  DataSource(List<Appointment> source) {
+  DataSource(List<Event> source) {
     appointments = source;
   }
+
+  @override
+  bool isAllDay(int index) => appointments![index].isAllDay;
+
+  @override
+  String getSubject(int index) => appointments![index].title;
+
+  @override
+  String getNotes(int index) => appointments![index].description;
+
+  @override
+  DateTime getStartTime(int index) => appointments![index].from;
+
+  @override
+  DateTime getEndTime(int index) => appointments![index].to;
+
+  @override
+  Color getColor(int index) => appointments![index].backgroundColor;
 }

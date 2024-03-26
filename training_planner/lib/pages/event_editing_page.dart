@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:training_planner/entities/event.dart';
+import 'package:flutter/cupertino.dart';
+
+import 'package:provider/provider.dart';
+import 'package:pair/pair.dart';
 import 'package:intl/intl.dart';
+
+import 'package:training_planner/entities/event.dart';
+import 'package:training_planner/providers/calendar_provider.dart';
 
 class EventEditingPage extends StatefulWidget {
   final Event? event;
@@ -14,8 +20,18 @@ class EventEditingPage extends StatefulWidget {
 class _EventEditingPageState extends State<EventEditingPage> {
   late DateTime fromDate;
   late DateTime toDate;
+  bool _isAllDay = false;
+  Pair<Color, String> _selectedColor =
+      const Pair(Color.fromARGB(255, 96, 219, 168), 'ПТ');
 
-  final _textFieldController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  final List<Pair<Color, String>> tags = [
+    const Pair(Color.fromARGB(255, 96, 219, 168), 'ПТ'),
+    const Pair(Color.fromARGB(255, 119, 89, 201), 'ВПТ'),
+    const Pair(Color.fromARGB(255, 219, 96, 133), 'Встреча'),
+  ];
 
   @override
   void initState() {
@@ -29,7 +45,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
 
   @override
   void dispose() {
-    _textFieldController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
@@ -58,10 +74,31 @@ class _EventEditingPageState extends State<EventEditingPage> {
         actions: [
           IconButton(
             onPressed: () {
-              if (_textFieldController.text == '') {
-                print("add title");
+              if (_titleController.text == '') {
+                showAdaptiveDialog(
+                    context: context,
+                    builder: (context) {
+                      return const AlertDialog(
+                        title: Text(
+                          'Введи название события!',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 197, 73, 73),
+                            fontSize: 23,
+                          ),
+                        ),
+                      );
+                    });
               } else {
-                print("title: ${_textFieldController.text}");
+                Provider.of<CalendarProvider>(context, listen: false).addEvent(
+                    Event(
+                        title: _titleController.text,
+                        from: fromDate,
+                        to: toDate,
+                        isAllDay: _isAllDay,
+                        description: _descriptionController.text,
+                        backgroundColor: _selectedColor.key));
+
+                Navigator.of(context).pop();
               }
             },
             icon: const Icon(
@@ -79,7 +116,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
           children: [
             // Label
             TextField(
-              controller: _textFieldController,
+              controller: _titleController,
               decoration: const InputDecoration(
                 hintText: "Название",
                 hintStyle: TextStyle(
@@ -95,112 +132,234 @@ class _EventEditingPageState extends State<EventEditingPage> {
               ),
               onSubmitted: (value) {},
             ),
-            const SizedBox(height: 12),
-            // From Date Picker
-            Row(
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: GestureDetector(
-                    child: Text(
-                        DateFormat('E, dd MMM yyyy', 'ru').format(fromDate)),
-                    onTap: () async {
-                      final DateTime? date = await showDatePicker(
-                        context: context,
-                        initialDate: fromDate,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) {
-                        fromDate = date;
-                        toDate = fromDate.add(const Duration(hours: 2));
-
-                        setState(() {});
-                      }
-                    },
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: GestureDetector(
-                    child: Text(
-                      DateFormat('HH:mm', 'ru').format(fromDate),
-                      textAlign: TextAlign.right,
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  const Expanded(
+                      child: Text(
+                    'Весь день',
+                    style: TextStyle(fontSize: 15),
+                  )),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Switch.adaptive(
+                        applyCupertinoTheme: true,
+                        value: _isAllDay,
+                        inactiveTrackColor: Colors.white,
+                        onChanged: (bool value) {
+                          _isAllDay = value;
+                          setState(() {});
+                        },
+                      ),
                     ),
-                    onTap: () async {
-                      final TimeOfDay? time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay(
-                            hour: fromDate.hour,
-                            minute: fromDate.minute,
-                          ));
-
-                      if (time != null) {
-                        fromDate = DateTime(fromDate.year, fromDate.month,
-                            fromDate.day, time.hour, time.minute);
-                        toDate = fromDate.add(const Duration(hours: 2));
-
-                        setState(() {});
-                      }
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            // ToDate Picker
-            Row(
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: GestureDetector(
-                    child:
-                        Text(DateFormat('E, dd MMM yyyy', 'ru').format(toDate)),
-                    onTap: () async {
-                      final DateTime? date = await showDatePicker(
-                        context: context,
-                        initialDate: fromDate,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2100),
-                      );
-
-                      if (date != null &&
-                          date.difference(fromDate) > Duration.zero) {
-                        toDate = date;
-
-                        setState(() {});
-                      } else {
-                        print("ToDate is not valid!!!");
-                      }
-                    },
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: GestureDetector(
-                    child: Text(
-                      DateFormat('HH:mm', 'ru').format(toDate),
-                      textAlign: TextAlign.right,
-                    ),
-                    onTap: () async {
-                      final TimeOfDay? time = await showTimePicker(
+            const SizedBox(height: 18),
+            // fromDate Picker
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 7,
+                    child: GestureDetector(
+                      child: Text(
+                        DateFormat('E, dd MMM yyyy', 'ru').format(fromDate),
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      onTap: () async {
+                        final DateTime? date = await showDatePicker(
                           context: context,
-                          initialTime: TimeOfDay(
-                            hour: fromDate.hour,
-                            minute: fromDate.minute,
-                          ));
+                          initialDate: fromDate,
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) {
+                          fromDate = date;
+                          toDate = fromDate.add(const Duration(hours: 2));
 
-                      if (time != null) {
-                        fromDate = DateTime(fromDate.year, fromDate.month,
-                            fromDate.day, time.hour, time.minute);
-                        toDate = fromDate.add(const Duration(hours: 1));
-
-                        setState(() {});
-                      }
-                    },
+                          setState(() {});
+                        }
+                      },
+                    ),
                   ),
+                  Expanded(
+                    flex: 3,
+                    child: _isAllDay == true
+                        ? const Text('')
+                        : GestureDetector(
+                            child: Text(
+                              DateFormat('HH:mm', 'ru').format(fromDate),
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            onTap: () async {
+                              final TimeOfDay? time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay(
+                                    hour: fromDate.hour,
+                                    minute: fromDate.minute,
+                                  ));
+
+                              if (time != null) {
+                                fromDate = DateTime(
+                                    fromDate.year,
+                                    fromDate.month,
+                                    fromDate.day,
+                                    time.hour,
+                                    time.minute);
+                                toDate = fromDate.add(const Duration(hours: 2));
+
+                                setState(() {});
+                              }
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // toDate Picker
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 7,
+                    child: GestureDetector(
+                      child: Text(
+                        DateFormat('E, dd MMM yyyy', 'ru').format(toDate),
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      onTap: () async {
+                        final DateTime? date = await showDatePicker(
+                          context: context,
+                          initialDate: fromDate,
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                        );
+
+                        if (date != null && date.isAfter(fromDate)) {
+                          toDate = date;
+
+                          setState(() {});
+                        } else {
+                          print("ToDate is not valid!!!");
+                        }
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: _isAllDay == true
+                        ? const Text('')
+                        : GestureDetector(
+                            child: Text(
+                              DateFormat('HH:mm', 'ru').format(toDate),
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            onTap: () async {
+                              final TimeOfDay? time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay(
+                                    hour: fromDate.hour,
+                                    minute: fromDate.minute,
+                                  ));
+
+                              if (time != null &&
+                                  DateTime(toDate.year, toDate.month,
+                                          toDate.day, time.hour, time.minute)
+                                      .isAfter(fromDate)) {
+                                toDate = DateTime(toDate.year, toDate.month,
+                                    toDate.day, time.hour, time.minute);
+
+                                setState(() {});
+                              }
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+            const Divider(height: 1, thickness: 1),
+            const SizedBox(height: 25),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    Icon(Icons.lens, color: _selectedColor.key),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: GestureDetector(
+                        child: Text(
+                          _selectedColor.value,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: SizedBox(
+                                  width: double.maxFinite,
+                                  height: 300,
+                                  child: ListView.builder(
+                                    itemCount: tags.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return ListTile(
+                                        leading: Icon(
+                                          Icons.lens,
+                                          color: tags[index].key,
+                                        ),
+                                        title: Text(tags[index].value),
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedColor = tags[index];
+                                          });
+
+                                          Navigator.of(context).pop();
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  ],
+                )),
+            const SizedBox(height: 25),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(
+                  Icons.subject,
+                  color: Color.fromARGB(255, 100, 100, 100),
                 ),
-              ],
+                hintText: "Заметки",
+                hintStyle: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
+                ),
+                enabledBorder: textFieldBorder,
+                focusedBorder: textFieldBorder,
+              ),
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 20,
+              ),
+              onSubmitted: (value) {},
             ),
           ],
         ),
