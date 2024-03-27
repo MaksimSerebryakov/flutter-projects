@@ -97,15 +97,22 @@ class _EventEditingPageState extends State<EventEditingPage> {
                 showAdaptiveDialog(
                     context: context,
                     builder: (context) {
-                      return const AlertDialog(
-                        title: Text(
-                          'Введи название события!',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 197, 73, 73),
-                            fontSize: 23,
+                      return AlertDialog(
+                          title: const Text(
+                            'Введи название события!',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 197, 73, 73),
+                              fontSize: 20,
+                            ),
                           ),
-                        ),
-                      );
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Ok'),
+                            ),
+                          ]);
                     });
               } else {
                 if (isEditing == true) {
