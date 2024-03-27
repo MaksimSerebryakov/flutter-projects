@@ -29,6 +29,9 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
       body: Container(
         height: double.infinity,
         color: Theme.of(context).colorScheme.primary,
