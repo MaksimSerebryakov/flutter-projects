@@ -15,4 +15,13 @@ class Event {
       required this.to,
       this.backgroundColor = const Color.fromARGB(255, 0x20, 0x24, 0x39),
       this.isAllDay = false});
+
+  @override
+  operator ==(dynamic other) =>
+      other.isAllDay == isAllDay &&
+      other.backgroundColor == backgroundColor &&
+      other.description == description &&
+      other.from == from &&
+      other.to == to &&
+      other.title == title;
 }

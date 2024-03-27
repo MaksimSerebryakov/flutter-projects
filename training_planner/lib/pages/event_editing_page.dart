@@ -33,6 +33,8 @@ class _EventEditingPageState extends State<EventEditingPage> {
     const Pair(Color.fromARGB(255, 219, 96, 133), 'Встреча'),
   ];
 
+  bool isEditing = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,12 +42,29 @@ class _EventEditingPageState extends State<EventEditingPage> {
     if (widget.event == null) {
       fromDate = DateTime.now();
       toDate = fromDate.add(const Duration(hours: 2));
+    } else {
+      fromDate = widget.event!.from;
+      toDate = widget.event!.to;
+
+      if (widget.event!.title != '') {
+        isEditing = true;
+        _isAllDay = widget.event!.isAllDay;
+        _titleController.text = widget.event!.title;
+        _descriptionController.text = widget.event!.description;
+
+        for (var tag in tags) {
+          if (widget.event!.backgroundColor == tag.key) {
+            _selectedColor = tag;
+          }
+        }
+      }
     }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -89,14 +108,28 @@ class _EventEditingPageState extends State<EventEditingPage> {
                       );
                     });
               } else {
-                Provider.of<CalendarProvider>(context, listen: false).addEvent(
-                    Event(
-                        title: _titleController.text,
-                        from: fromDate,
-                        to: toDate,
-                        isAllDay: _isAllDay,
-                        description: _descriptionController.text,
-                        backgroundColor: _selectedColor.key));
+                if (isEditing == true) {
+                  Provider.of<CalendarProvider>(context, listen: false)
+                      .editEvent(
+                          Event(
+                            title: _titleController.text,
+                            from: fromDate,
+                            to: toDate,
+                            isAllDay: _isAllDay,
+                            description: _descriptionController.text,
+                            backgroundColor: _selectedColor.key,
+                          ),
+                          widget.event!);
+                } else {
+                  Provider.of<CalendarProvider>(context, listen: false)
+                      .addEvent(Event(
+                          title: _titleController.text,
+                          from: fromDate,
+                          to: toDate,
+                          isAllDay: _isAllDay,
+                          description: _descriptionController.text,
+                          backgroundColor: _selectedColor.key));
+                }
 
                 Navigator.of(context).pop();
               }
@@ -181,7 +214,6 @@ class _EventEditingPageState extends State<EventEditingPage> {
                         );
                         if (date != null) {
                           fromDate = date;
-                          toDate = fromDate.add(const Duration(hours: 2));
 
                           setState(() {});
                         }
@@ -213,7 +245,11 @@ class _EventEditingPageState extends State<EventEditingPage> {
                                     fromDate.day,
                                     time.hour,
                                     time.minute);
-                                toDate = fromDate.add(const Duration(hours: 2));
+
+                                if (fromDate.isAfter(toDate)) {
+                                  toDate =
+                                      fromDate.add(const Duration(hours: 2));
+                                }
 
                                 setState(() {});
                               }
@@ -248,8 +284,6 @@ class _EventEditingPageState extends State<EventEditingPage> {
                           toDate = date;
 
                           setState(() {});
-                        } else {
-                          print("ToDate is not valid!!!");
                         }
                       },
                     ),
@@ -364,6 +398,18 @@ class _EventEditingPageState extends State<EventEditingPage> {
           ],
         ),
       ),
+      floatingActionButton: isEditing == false
+          ? null
+          : FloatingActionButton(
+              elevation: 2,
+              onPressed: () {
+                Provider.of<CalendarProvider>(context, listen: false)
+                    .removeEvent(widget.event!);
+                Navigator.of(context).pop();
+              },
+              shape: const CircleBorder(),
+              child: const Icon(Icons.delete),
+            ),
     );
   }
 }

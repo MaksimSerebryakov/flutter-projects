@@ -8,11 +8,23 @@ class CalendarProvider extends ChangeNotifier {
 
   void addEvent(Event event) {
     events.add(event);
+
     notifyListeners();
   }
 
-  void removeEvent(int index) {
-    events.removeAt(index);
+  void removeEvent(Event oldEvent) {
+    events.remove(oldEvent);
+
+    notifyListeners();
+  }
+
+  void editEvent(Event newEvent, Event oldEvent) {
+    int index = events.indexOf(oldEvent);
+
+    if (index >= 0 && index <= events.length) {
+      events[index] = newEvent;
+    }
+
     notifyListeners();
   }
 }
